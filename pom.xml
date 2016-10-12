@@ -3,4 +3,17 @@
   <groupId>sportLotteryGen</groupId>
   <artifactId>sportLotteryGen</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <dependencies>
+	<dependency>
+    	<groupId>us.codecraft</groupId>
+    	<artifactId>webmagic-core</artifactId>
+    	<version>0.5.3</version>
+	</dependency>
+	<dependency>
+    	<groupId>us.codecraft</groupId>
+    	<artifactId>webmagic-extension</artifactId>
+    	<version>0.5.3</version>
+	</dependency>
+  </dependencies>
+
 </project>
