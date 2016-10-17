@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import com.ivan.lottery.bean.Game;
@@ -17,9 +19,9 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 import us.codecraft.webmagic.processor.PageProcessor;
 
 /**
- * 体彩任14数据抓取
+ * 体彩任9数据抓取
  * */
-public class R14Crawler implements PageProcessor{
+public class R9Crawler implements PageProcessor{
 	
 	private Site site = Site.me().setRetryTimes(3).setSleepTime(0);
 	
@@ -28,7 +30,6 @@ public class R14Crawler implements PageProcessor{
 		try {
 			page.putField("period", page.getHtml().$("#bet_period","text").get());
 			page.putField("betTime", page.getHtml().$("#bet_time","text").get().substring(6));
-			System.out.println(page.getHtml().$("#game_list tbody tr:nth-child(2) td:nth-child(4) a:nth-of-type(1)").get());
 			int size=page.getHtml().$("#game_list tbody tr").all().size();
 			List<Game> betList=new ArrayList<Game>();
 			for(int i=1;i<=size;i++){
@@ -65,23 +66,37 @@ public class R14Crawler implements PageProcessor{
 	}
 	
     public static void main(String[] args) {
-        Spider.create(new R14Crawler()).addUrl("http://caipiao.163.com/order/sfc/")
+        Spider.create(new R9Crawler()).addUrl("http://caipiao.163.com/order/rx9/")
         .addPipeline(new Pipeline() {
 			
 			@Override
 			@SuppressWarnings("unchecked")
 			public void process(ResultItems resultItems, Task task) {
 				try {
-					PrintWriter printWriter = new PrintWriter(new FileWriter(new File("/Users/ivan/Desktop/workspace/test/r14-"+resultItems.get("period")+"-"+System.currentTimeMillis()+".text")));
-		            printWriter.write("任14第"+resultItems.get("period")+"期结果如下:\n");
+					PrintWriter printWriter = new PrintWriter(new FileWriter(new File("/Users/ivan/Desktop/workspace/test/r9-"+resultItems.get("period")+"-"+System.currentTimeMillis()+".text")));
+		            printWriter.write("任9第"+resultItems.get("period")+"期结果如下:\n");
 		            List<Game> betList=(ArrayList<Game>)resultItems.get("betList");
 		            for(Game game:betList){
 		            	printWriter.write(game+"\n");
 		            }
 		            printWriter.write("\n\n\n\n\n\n\n");
+		            
 		            for(int i=1;i<=10;i++){
 		            	printWriter.write("第"+i+"单{");
-		            	for(Game game:betList){
+		            	List<Game> list=new ArrayList<>();
+		            	list.addAll(betList);
+		            	List<Game> gameList=new ArrayList<>();
+		            	for(int j=1;j<=9;j++){//14场任选9场
+		            		gameList.add(list.remove((int)(Math.floor(Math.random()*list.size()))));
+		            		
+		            	}
+		            	Collections.sort(gameList, new Comparator<Game>() {
+							@Override
+							public int compare(Game g1, Game g2) {
+								return new Integer(g1.getSeq()).compareTo(new Integer(g2.getSeq()));
+							}
+						});
+		            	for(Game game:gameList){
 		            		printWriter.write(game.getSeq()+":"+game.getResult()+",");
 		            	}
 		            	printWriter.write("}\n");
@@ -90,10 +105,10 @@ public class R14Crawler implements PageProcessor{
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 			}
 		})
-        .thread(1).run();
+        .
+        thread(1).run();
     }
 
 }
